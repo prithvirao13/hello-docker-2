@@ -17,8 +17,11 @@ error_exit()
 srcreg=$1 #"cr.[regionId].aliyuncs.com"
 tgtreg=$2 #"awsacctnum.dkr.ecr.awsregion.amazonaws.com"
 
+instanceid = $(curl -s http://100.100.100.200/latest/meta-data/instance-id)
+regionid = 'ap-south-1'
+
 #repos=`curl -s http://$srcreg/v2/_catalog?n=2048 | jq '.repositories[]' | tr -d '"'`
-repos=$(curl -s http://$srcreg/?Action=ListRepository&InstanceId=cri-kmsiwlxxdcvaduwb&RegionId=cn-shanghai)
+repos=$(curl -s http://$srcreg/?Action=ListRepository&InstanceId=$instanceid&RegionId=$regionid)
 
 for k in $(echo ${repos} | jq '.Repositories | keys | .[]'); do
    value=$(echo ${repos} | jq -r ".Repositories[$k]");
@@ -36,7 +39,7 @@ for k in $(echo ${repos} | jq '.Repositories | keys | .[]'); do
    fi
 
    #tags=`curl -s http://$srcreg/v2/$repo/tags/list?n=2048 | jq '.tags[]' | tr -d '"'`
-   tags=$(curl -s http://$srcreg/?Action=ListRepoTag&InstanceId=cri-kmsiwlxxdcvaduwb&RegionId=cn-shanghai&RepoId=$id | jq -r '.Images | .[].Tag')
+   tags=$(curl -s http://$srcreg/?Action=ListRepoTag&InstanceId=$instanceid&RegionId=$regionid&RepoId=$id | jq -r '.Images | .[].Tag')
 
       #check for existing tags at ECR and push if not exist
       for tag in $tags; do
